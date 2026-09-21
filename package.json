@@ -1,0 +1,30 @@
+{
+  "name": "stock-0050-notifier",
+  "version": "1.0.0",
+  "description": "每天早上 9:30 定時透過 LINE Messaging API 通知 0050 當前股價與漲跌幅",
+  "main": "dist/notify.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/notify.js",
+    "dev": "ts-node notify.ts"
+  },
+  "keywords": [
+    "stock",
+    "0050",
+    "line-notify",
+    "yahoo-finance"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@line/bot-sdk": "^9.2.3",
+    "cross-fetch": "^4.1.0",
+    "dotenv": "^16.4.5",
+    "yahoo-finance2": "^2.13.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  }
+}
