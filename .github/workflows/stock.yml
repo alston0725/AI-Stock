@@ -2,9 +2,9 @@ name: 0050 Stock Daily Notification
 
 on:
   schedule:
-    # 台灣時間 (UTC+8) 下午 13:45 測試
-    # 對應 UTC 時間為 05:45 (每週一到週五: 1-5)
-    - cron: '45 5 * * 1-5'
+    # 台灣時間 (UTC+8) 每週一至週五早上 09:32 (避開 09:30 尖峰排隊)
+    # 對應 UTC 時間為 01:32，每週一到週五 (1-5)
+    - cron: '32 1 * * 1-5'
   workflow_dispatch: # 支援在 GitHub 網頁手動觸發測試
 
 jobs:
