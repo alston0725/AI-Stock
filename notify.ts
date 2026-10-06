@@ -165,8 +165,10 @@ async function main() {
     const currentTime = getTaiwanTimeString();
 
     // 組織 LINE 通知訊息（純繁體中文樣式）
+    const stockName = process.env.STOCK_NAME || '';
+    const title = stockName ? `${stockName}股票盤況通知` : '股票盤況通知';
     const message = [
-      `股票盤況通知`,
+      title,
       `回報時間：${currentTime}`,
       ``,
       `最新股價：${price.toFixed(2)} 元`,
