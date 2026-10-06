@@ -1,6 +1,6 @@
-# 📈 0050 股票即時行情每日 LINE 推播機器人
+# 📈 股票即時行情每日 LINE 推播機器人
 
-這是一個使用 **TypeScript (Node.js)** 開發的自動化通知專案。利用 **yahoo-finance2** 取得元大台灣50 (`0050.TW`) 最新交易數據，並透過 **LINE Messaging API (Push Message)** 與 **GitHub Actions** 免費排程，在台灣時間每週一至週五早上 09:30 自動推播當前盤況通知至您的 LINE。
+這是一個使用 **TypeScript (Node.js)** 開發的自動化通知專案。利用 **yahoo-finance2** 取得股票最新交易數據，並透過 **LINE Messaging API (Push Message)** 與 **GitHub Actions** 免費排程，在台灣時間每週一至週五早上 09:32 自動推播當前盤況通知至您的 LINE。
 
 ---
 
@@ -79,8 +79,8 @@
    * 執行成功後，您的 LINE 就會收到如下格式的盤況通知：
 
 ```text
-元大台灣50 (0050.TW)】盤況通知
-回報時間：2026/09/21 09:30:00
+股票盤況通知
+回報時間：2026/09/21 09:32:00
 
 最新股價：195.50 元
 今日漲跌：+2.50 (+1.30%)
@@ -100,7 +100,7 @@
    ```bash
    git init
    git add .
-   git commit -m "feat: initial commit for 0050 stock notifier"
+   git commit -m "feat: initial commit for stock notifier"
    git remote add origin https://github.com/<您的用戶名>/<您的儲存庫名>.git
    git branch -M main
    git push -u origin main
@@ -116,11 +116,11 @@
 
 3. **手動測試觸發**：
    * 進入 GitHub Repository 的 **Actions** 頁籤。
-   * 點選左側的 **0050 Stock Daily Notification**。
+   * 點選左側的 **Stock Daily Notification**。
    * 點選右側 **Run workflow** 下拉選單 ➔ 點擊綠色的 **Run workflow** 按鈕。
    * 稍等約 30 秒，查看 Workflow 執行記錄並檢查手機 LINE 是否收到推播。
 
 4. **排程時間說明**：
    * GitHub Actions 使用 UTC 時間。
-   * 台灣時區為 UTC+8，早上 09:30 對應 UTC 時間為 **01:30**。
-   * Cron 表達式已設定為：`30 1 * * 1-5`（每週一至週五 UTC 01:30 / 台灣時間 09:30 觸發）。
+   * 台灣時區為 UTC+8，早上 09:32 對應 UTC 時間為 **01:32**。
+   * Cron 表達式已設定為：`32 1 * * 1-5`（每週一至週五 UTC 01:32 / 台灣時間 09:32 觸發）。

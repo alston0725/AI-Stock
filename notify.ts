@@ -135,7 +135,7 @@ async function getStockQuote(symbol: string): Promise<StockQuoteData> {
  * 主執行函式
  */
 async function main() {
-  console.log('🚀 開始執行 0050 股票行情通知腳本...');
+  console.log('🚀 開始執行股票行情通知腳本...');
 
   // 1. 檢查必要環境變數
   if (!LINE_CHANNEL_ACCESS_TOKEN || !LINE_USER_ID) {
@@ -145,9 +145,9 @@ async function main() {
   }
 
   try {
-    // 2. 抓取 0050.TW 即時報價
-    const symbol = '0050.TW';
-    console.log(`📡 正在獲取 ${symbol} 最新盤況資料...`);
+    // 2. 抓取股票即時報價
+    const symbol = process.env.STOCK_SYMBOL || '0050.TW';
+    console.log('📡 正在獲取最新盤況資料...');
     const quote = await getStockQuote(symbol);
 
     const price = quote.price;
@@ -166,7 +166,7 @@ async function main() {
 
     // 組織 LINE 通知訊息（純繁體中文樣式）
     const message = [
-      `元大台灣50 (0050.TW)】盤況通知`,
+      `股票盤況通知`,
       `回報時間：${currentTime}`,
       ``,
       `最新股價：${price.toFixed(2)} 元`,
