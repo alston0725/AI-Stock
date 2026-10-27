@@ -10,6 +10,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["notify.ts"],
+  "include": ["notify.ts", "api/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

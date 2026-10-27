@@ -185,8 +185,8 @@ async function main() {
 
     console.log('即將發送的推播內容：\n' + summaryText);
 
-    // 依漲跌決定卡片主題色（台股習慣：紅漲 #D32F2F、綠跌 #2E7D32、平盤 #546E7A）
-    let themeColor = '#546E7A';
+    // 依漲跌決定卡片主題色（台股習慣：紅漲 #D32F2F、綠跌 #2E7D32、平盤灰色 #808080）
+    let themeColor = '#808080';
     if (change > 0) {
       themeColor = '#D32F2F';
     } else if (change < 0) {
