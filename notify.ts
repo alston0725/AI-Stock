@@ -124,7 +124,7 @@ async function getStockQuote(symbol: string): Promise<StockQuoteData> {
       };
     }
   } catch (err: any) {
-    console.warn(`⚠️ yahoo-finance2.quote 呼叫未果 (${err.message})，自動啟用直接請求備援線路...`);
+    console.warn(`yahoo-finance2.quote 呼叫未果 (${err.message})，自動啟用直接請求備援線路...`);
   }
 
   // 備援線路
@@ -135,11 +135,11 @@ async function getStockQuote(symbol: string): Promise<StockQuoteData> {
  * 主執行函式
  */
 async function main() {
-  console.log('🚀 開始執行股票行情通知腳本...');
+  console.log('開始執行股票行情通知腳本...');
 
   // 1. 檢查必要環境變數
   if (!LINE_CHANNEL_ACCESS_TOKEN || !LINE_USER_ID) {
-    console.error('❌ 錯誤：缺少必要的環境變數！');
+    console.error('錯誤：缺少必要的環境變數！');
     console.error('請確保設定了 LINE_CHANNEL_ACCESS_TOKEN 與 LINE_USER_ID。');
     process.exit(1);
   }
@@ -147,7 +147,7 @@ async function main() {
   try {
     // 2. 抓取股票即時報價
     const symbol = process.env.STOCK_SYMBOL || '0050.TW';
-    console.log('📡 正在獲取最新盤況資料...');
+    console.log('正在獲取最新盤況資料...');
     const quote = await getStockQuote(symbol);
 
     const price = quote.price;
@@ -164,42 +164,195 @@ async function main() {
     const changeFormatted = `${changeSign}${change.toFixed(2)} (${changePercentSign}${changePercent.toFixed(2)}%)`;
     const currentTime = getTaiwanTimeString();
 
-    // 組織 LINE 通知訊息（純繁體中文樣式）
-    const stockName = process.env.STOCK_NAME || '';
+    // 組織標題與摘要文字
+    const stockName = (process.env.STOCK_NAME || '').trim();
     const title = stockName ? `${stockName}股票盤況通知` : '股票盤況通知';
-    const message = [
+    const highStr = high !== undefined ? `${high.toFixed(2)} 元` : '無資料';
+    const lowStr = low !== undefined ? `${low.toFixed(2)} 元` : '無資料';
+    const volumeStr = volume !== undefined ? `${Math.floor(volume / 1000).toLocaleString()} 張` : '無資料';
+
+    const summaryText = [
       title,
       `回報時間：${currentTime}`,
       ``,
       `最新股價：${price.toFixed(2)} 元`,
       `今日漲跌：${changeFormatted}`,
       `昨日收盤：${prevClose.toFixed(2)} 元`,
-      `今日最高：${high !== undefined ? high.toFixed(2) : '無資料'} 元`,
-      `今日最低：${low !== undefined ? low.toFixed(2) : '無資料'} 元`,
-      `成交張數：${volume !== undefined ? Math.floor(volume / 1000).toLocaleString() : '無資料'} 張`,
+      `今日最高：${highStr}`,
+      `今日最低：${lowStr}`,
+      `成交張數：${volumeStr}`,
     ].join('\n');
 
-    console.log('📝 即將發送的推播內容：\n' + message);
+    console.log('即將發送的推播內容：\n' + summaryText);
+
+    // 依漲跌決定卡片主題色（台股習慣：紅漲 #D32F2F、綠跌 #2E7D32、平盤 #546E7A）
+    let themeColor = '#546E7A';
+    if (change > 0) {
+      themeColor = '#D32F2F';
+    } else if (change < 0) {
+      themeColor = '#2E7D32';
+    }
+
+    // 組合 Google 財經與 Yahoo 股市連結
+    const stockCode = symbol.replace(/\.TW$/i, '');
+    const googleFinanceUrl = `https://www.google.com/finance/quote/${stockCode}:TPE`;
+    const yahooStockUrl = `https://tw.stock.yahoo.com/quote/${symbol}`;
+
+    // 建立 LINE Flex Message 卡片
+    const flexMessage: messagingApi.FlexMessage = {
+      type: 'flex',
+      altText: `${title} 最新股價：${price.toFixed(2)} 元 (${changeFormatted})`,
+      contents: {
+        type: 'bubble',
+        header: {
+          type: 'box',
+          layout: 'vertical',
+          backgroundColor: themeColor,
+          paddingAll: '16px',
+          contents: [
+            {
+              type: 'text',
+              text: title,
+              color: '#FFFFFF',
+              weight: 'bold',
+              size: 'lg',
+            },
+            {
+              type: 'text',
+              text: `回報時間：${currentTime}`,
+              color: '#F0F0F0',
+              size: 'xs',
+              margin: 'xs',
+            },
+          ],
+        },
+        body: {
+          type: 'box',
+          layout: 'vertical',
+          paddingAll: '16px',
+          contents: [
+            {
+              type: 'box',
+              layout: 'baseline',
+              contents: [
+                {
+                  type: 'text',
+                  text: `${price.toFixed(2)}`,
+                  size: 'xxl',
+                  weight: 'bold',
+                  color: themeColor,
+                  flex: 0,
+                },
+                {
+                  type: 'text',
+                  text: ' 元',
+                  size: 'sm',
+                  color: themeColor,
+                  weight: 'bold',
+                  flex: 0,
+                },
+                {
+                  type: 'text',
+                  text: changeFormatted,
+                  size: 'md',
+                  weight: 'bold',
+                  color: themeColor,
+                  align: 'end',
+                },
+              ],
+            },
+            {
+              type: 'separator',
+              margin: 'md',
+            },
+            {
+              type: 'box',
+              layout: 'vertical',
+              margin: 'md',
+              spacing: 'sm',
+              contents: [
+                {
+                  type: 'box',
+                  layout: 'horizontal',
+                  contents: [
+                    { type: 'text', text: '昨日收盤', size: 'sm', color: '#666666' },
+                    { type: 'text', text: `${prevClose.toFixed(2)} 元`, size: 'sm', color: '#111111', weight: 'bold', align: 'end' },
+                  ],
+                },
+                {
+                  type: 'box',
+                  layout: 'horizontal',
+                  contents: [
+                    { type: 'text', text: '今日最高', size: 'sm', color: '#666666' },
+                    { type: 'text', text: highStr, size: 'sm', color: '#111111', weight: 'bold', align: 'end' },
+                  ],
+                },
+                {
+                  type: 'box',
+                  layout: 'horizontal',
+                  contents: [
+                    { type: 'text', text: '今日最低', size: 'sm', color: '#666666' },
+                    { type: 'text', text: lowStr, size: 'sm', color: '#111111', weight: 'bold', align: 'end' },
+                  ],
+                },
+                {
+                  type: 'box',
+                  layout: 'horizontal',
+                  contents: [
+                    { type: 'text', text: '成交張數', size: 'sm', color: '#666666' },
+                    { type: 'text', text: volumeStr, size: 'sm', color: '#111111', weight: 'bold', align: 'end' },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        footer: {
+          type: 'box',
+          layout: 'vertical',
+          spacing: 'sm',
+          paddingAll: '12px',
+          contents: [
+            {
+              type: 'button',
+              style: 'primary',
+              color: themeColor,
+              height: 'sm',
+              action: {
+                type: 'uri',
+                label: '查看 Google 走勢圖',
+                uri: googleFinanceUrl,
+              },
+            },
+            {
+              type: 'button',
+              style: 'secondary',
+              height: 'sm',
+              action: {
+                type: 'uri',
+                label: '查看 Yahoo 詳細盤況',
+                uri: yahooStockUrl,
+              },
+            },
+          ],
+        },
+      },
+    };
 
     // 3. 使用 LINE Messaging API 發送推播訊息 (Push Message)
-    console.log('📲 正在透過 LINE Messaging API 發送訊息...');
+    console.log('正在透過 LINE Messaging API 發送訊息...');
     const client = new messagingApi.MessagingApiClient({
       channelAccessToken: LINE_CHANNEL_ACCESS_TOKEN,
     });
 
     await client.pushMessage({
       to: LINE_USER_ID,
-      messages: [
-        {
-          type: 'text',
-          text: message,
-        },
-      ],
+      messages: [flexMessage],
     });
 
-    console.log('✅ LINE 推播訊息已成功發送！');
+    console.log('LINE 推播訊息已成功發送！');
   } catch (error: any) {
-    console.error('❌ 執行過程發生錯誤：', error?.message || error);
+    console.error('執行過程發生錯誤：', error?.message || error);
     if (error?.response?.data) {
       console.error('LINE API 回應詳情：', JSON.stringify(error.response.data, null, 2));
     }
