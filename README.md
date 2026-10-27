@@ -105,7 +105,6 @@
    git branch -M main
    git push -u origin main
    ```
-   > ⚠️ 請確認 `.env` 沒有被 push 上去（`.gitignore` 已預設排除）。
 
 2. **在 GitHub 儲存庫中設定 Secrets**：
    * 進入您的 GitHub Repository 頁面。

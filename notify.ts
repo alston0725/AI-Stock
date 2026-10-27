@@ -195,7 +195,7 @@ async function main() {
 
     // 組合 Google 財經與 Yahoo 股市連結
     const stockCode = symbol.replace(/\.TW$/i, '');
-    const googleFinanceUrl = `https://www.google.com/finance/quote/${stockCode}:TPE`;
+    const googleFinanceUrl = `https://www.google.com/finance/quote/${stockCode}:TPE?hl=zh-TW`;
     const yahooStockUrl = `https://tw.stock.yahoo.com/quote/${symbol}`;
 
     // 建立 LINE Flex Message 卡片
